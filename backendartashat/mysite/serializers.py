@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import (MyUser, Course, Register, Event, Comment, Image, Material)
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -10,7 +12,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'surname', 'phone', 'email', 'course']
 
     def create(self, validated_data):
-        # send gmail
+        subject = f"Пользователь зарегистрировался на курс` {validated_data['course']}"
+        message = f"Имя и фамилия пользователя` {validated_data['name']}  {validated_data['surname']}, номер телефона` {validated_data['phone']}({validated_data['email']})."
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            ['hovo.simonyan.2002@gmail.com'],
+            fail_silently=False,
+        )
         return Register.objects.create(**validated_data)
 
 
